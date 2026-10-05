@@ -237,6 +237,80 @@ body {
     color: var(--text);
 }
 
+/* Новости (таблица на главной) */
+.label-first {
+    margin-top: 0;
+}
+
+.articles {
+    width: 100%;
+    border-collapse: collapse;
+    border-top: 1px solid var(--line);
+}
+
+.articles th {
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--line);
+}
+
+.articles td {
+    padding: 16px 12px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+}
+
+.a-date {
+    color: var(--muted);
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.a-preview {
+    display: block;
+    width: 160px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.a-preview img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    transition: transform 0.25s ease;
+}
+
+.a-preview:hover img {
+    transform: scale(1.05);
+}
+
+.a-name {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.a-desc {
+    color: var(--body);
+}
+
+/* Галерея */
+.gallery-figure {
+    margin: 0 0 32px;
+}
+
+.gallery-figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+}
+
 /* ---------- Подвал ---------- */
 .site-footer {
     margin-top: auto;
@@ -284,5 +358,33 @@ body {
 
     .page {
         padding: 60px 0;
+    }
+
+    /* Таблица новостей превращается в карточки */
+    .articles thead {
+        display: none;
+    }
+
+    .articles,
+    .articles tbody,
+    .articles tr,
+    .articles td {
+        display: block;
+        width: 100%;
+    }
+
+    .articles tr {
+        padding: 16px 0;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .articles td {
+        padding: 4px 0;
+        border-bottom: none;
+    }
+
+    .a-preview {
+        width: 100%;
+        margin: 8px 0;
     }
 }

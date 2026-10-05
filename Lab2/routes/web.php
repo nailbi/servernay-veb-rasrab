@@ -1,13 +1,15 @@
 <?php
 
+use App\Http\Controllers\MainController;
 use Illuminate\Support\Facades\Route;
 
+// Главная — список статей из json-файла (метод index контроллера).
+Route::get('/', [MainController::class, 'index'])->name('home');
 
-
-// Главная — приветственная страница (в будущем — список новостей).
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+// Галерея — полноразмерное изображение статьи (full_image).
+Route::get('/galery/{id}', [MainController::class, 'galery'])
+    ->whereNumber('id')
+    ->name('galery');
 
 // «О нас» — текстовая страница.
 Route::get('/about', function () {
