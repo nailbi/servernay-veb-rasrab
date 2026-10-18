@@ -311,6 +311,177 @@ body {
     border-radius: 12px;
 }
 
+/* Форма регистрации */
+.form {
+    max-width: 440px;
+}
+
+.form-group {
+    margin-bottom: 22px;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+.form-input {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--text);
+    background: var(--bg);
+    padding: 12px 14px;
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    transition: border-color 0.15s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--text);
+}
+
+.form-input.is-invalid {
+    border-color: #c62828;
+}
+
+.form-error {
+    margin: 6px 0 0;
+    font-size: 0.86rem;
+    color: #c62828;
+}
+
+.form .btn {
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+/* CRUD новостей */
+.page-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.a-name a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.a-name a:hover {
+    text-decoration: underline;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    cursor: pointer;
+}
+
+.btn-danger {
+    color: #c62828;
+    border-color: #f0c4c4;
+}
+
+.btn-danger:hover {
+    border-color: #c62828;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.actions form {
+    margin: 0;
+}
+
+.form-wide {
+    max-width: 720px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+textarea.form-input {
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 24px;
+}
+
+.form .form-actions .btn {
+    margin-top: 0;
+}
+
+.alert {
+    margin-top: 24px;
+    padding: 12px 16px;
+    border: 1px solid #b7dfb9;
+    border-radius: 8px;
+    background: #eef8ee;
+    color: #1b5e20;
+    font-size: 0.92rem;
+}
+
+/* Пагинация */
+.pagination {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+}
+
+.page-link {
+    min-width: 38px;
+    padding: 8px 12px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--text);
+    text-decoration: none;
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+}
+
+a.page-link:hover {
+    border-color: var(--text);
+}
+
+.page-link.is-active {
+    background: var(--text);
+    border-color: var(--text);
+    color: #fff;
+}
+
+.page-link.is-disabled {
+    color: var(--muted);
+    border-color: var(--line);
+}
+
+.pagination-info {
+    margin: 12px 0 0;
+    font-size: 0.86rem;
+    color: var(--muted);
+}
+
 /* ---------- Подвал ---------- */
 .site-footer {
     margin-top: auto;
@@ -387,4 +558,43 @@ body {
         width: 100%;
         margin: 8px 0;
     }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Авторизация */
+.nav-user {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.nav-logout {
+    margin: 0;
+}
+
+.nav-logout .btn {
+    cursor: pointer;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    font-size: 0.92rem;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+.form-note {
+    margin: 18px 0 0;
+    font-size: 0.92rem;
+    color: var(--muted);
+}
+
+.form-note a {
+    color: var(--text);
 }

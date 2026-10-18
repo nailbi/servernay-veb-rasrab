@@ -16,14 +16,36 @@
             <a href="{{ route('home') }}" class="logo">Мой сайт</a>
             <nav class="nav">
                 <a href="{{ route('home') }}" class="nav-link @if(request()->routeIs('home')) is-active @endif">Главная</a>
+                <a href="{{ route('articles.index') }}" class="nav-link @if(request()->routeIs('articles.*')) is-active @endif">Новости</a>
                 <a href="{{ route('about') }}" class="nav-link @if(request()->routeIs('about')) is-active @endif">О нас</a>
-                <a href="{{ route('contacts') }}" class="btn @if(request()->routeIs('contacts')) btn-solid @endif">Контакты</a>
+                <a href="{{ route('contacts') }}" class="nav-link @if(request()->routeIs('contacts')) is-active @endif">Контакты</a>
+
+                {{-- Гостю — ссылки на вход и регистрацию, авторизованному — имя и выход --}}
+                @guest
+                    <a href="{{ route('signin') }}" class="nav-link @if(request()->routeIs('signin*')) is-active @endif">Регистрация</a>
+                    <a href="{{ route('login') }}" class="btn @if(request()->routeIs('login*')) btn-solid @endif">Войти</a>
+                @endguest
+
+                @auth
+                    <span class="nav-user">{{ auth()->user()->name }}</span>
+                    <form action="{{ route('logout') }}" method="POST" class="nav-logout">
+                        @csrf
+                        <button type="submit" class="btn">Выйти</button>
+                    </form>
+                @endauth
             </nav>
         </div>
     </header>
 
     {{-- ОСНОВНАЯ ЧАСТЬ: содержимое конкретной страницы --}}
     <main class="main-content">
+        {{-- Flash-сообщение после создания/изменения/удаления --}}
+        @if (session('success'))
+            <div class="container">
+                <div class="alert">{{ session('success') }}</div>
+            </div>
+        @endif
+
         @yield('content')
     </main>
 
