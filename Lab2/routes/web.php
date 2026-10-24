@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\MainController;
 use Illuminate\Support\Facades\Route;
 
@@ -57,3 +58,22 @@ Route::resource('articles', ArticleController::class)
 
 // Просмотр списка и отдельной новости доступен всем.
 Route::resource('articles', ArticleController::class)->only(['index', 'show']);
+
+// Комментарии — только для авторизованных. Права проверяет CommentPolicy.
+Route::middleware('auth:sanctum')->group(function () {
+    // Добавить комментарий к статье (попадает на модерацию).
+    Route::post('/articles/{article}/comments', [CommentController::class, 'store'])
+        ->name('comments.store');
+
+    // Интерфейс модератора: список непроверенных комментариев.
+    Route::get('/comments/moderation', [CommentController::class, 'moderation'])
+        ->name('comments.moderation');
+
+    // Принять комментарий.
+    Route::patch('/comments/{comment}/approve', [CommentController::class, 'approve'])
+        ->name('comments.approve');
+
+    // Отклонить комментарий.
+    Route::delete('/comments/{comment}/reject', [CommentController::class, 'reject'])
+        ->name('comments.reject');
+});

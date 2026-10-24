@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Модель новости — работает с таблицей articles.
@@ -32,5 +33,13 @@ class Article extends Model
         return [
             'date' => 'date',
         ];
+    }
+
+    /**
+     * У статьи много комментариев (один ко многим).
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
     }
 }

@@ -598,3 +598,43 @@ a.page-link:hover {
 .form-note a {
     color: var(--text);
 }
+
+/* ---------- Комментарии ---------- */
+.comments {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+}
+
+.comments-title {
+    margin: 0 0 20px;
+    font-size: 22px;
+}
+
+.comment {
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.comment-meta {
+    margin: 0 0 4px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.comment-meta strong {
+    color: var(--text);
+}
+
+.comment-text {
+    margin: 0;
+    color: var(--body);
+}
+
+.comment-empty {
+    color: var(--muted);
+}
+
+.comment-form {
+    margin-top: 24px;
+}

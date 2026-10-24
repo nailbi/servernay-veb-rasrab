@@ -71,7 +71,13 @@ class ArticleController extends Controller
      */
     public function show(Article $article)
     {
-        return view('articles.show', ['article' => $article]);
+        // На странице — только комментарии, прошедшие модерацию.
+        $comments = $article->comments()->approved()->with('user')->oldest()->get();
+
+        return view('articles.show', [
+            'article'  => $article,
+            'comments' => $comments,
+        ]);
     }
 
     /**

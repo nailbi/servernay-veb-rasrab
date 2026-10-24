@@ -22,6 +22,11 @@
                 @can('create', App\Models\Article::class)
                     <a href="{{ route('articles.create') }}" class="nav-link @if(request()->routeIs('articles.create')) is-active @endif">Создать новость</a>
                 @endcan
+
+                {{-- Панель модерации комментариев — только для модератора (шлюз moderate) --}}
+                @can('moderate')
+                    <a href="{{ route('comments.moderation') }}" class="nav-link @if(request()->routeIs('comments.moderation')) is-active @endif">Модерация</a>
+                @endcan
                 <a href="{{ route('about') }}" class="nav-link @if(request()->routeIs('about')) is-active @endif">О нас</a>
                 <a href="{{ route('contacts') }}" class="nav-link @if(request()->routeIs('contacts')) is-active @endif">Контакты</a>
 

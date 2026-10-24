@@ -8,8 +8,8 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Наполнение БД: роли, пользователи (модератор и читатель)
-     * и 20 фэйковых новостей из фабрики.
+     * Наполнение БД: роли, пользователи (модератор и читатель),
+     * 20 фэйковых новостей из фабрики и комментарии к ним.
      */
     public function run(): void
     {
@@ -19,5 +19,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Article::factory()->count(20)->create();
+
+        $this->call(CommentSeeder::class);
     }
 }
