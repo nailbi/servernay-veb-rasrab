@@ -20,9 +20,10 @@
 
             <div class="form-actions">
                 <a href="{{ route('articles.index') }}" class="btn">← К списку</a>
-                @auth
+                {{-- Кнопки видит только тот, кому политика разрешает update (модератор) --}}
+                @can('update', $article)
                     @include('articles.partials.actions', ['article' => $article])
-                @endauth
+                @endcan
             </div>
         </div>
     </section>

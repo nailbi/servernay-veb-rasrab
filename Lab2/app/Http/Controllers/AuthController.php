@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,6 +52,9 @@ class AuthController extends Controller
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:6', 'max:64'],
         ], self::MESSAGES, self::ATTRIBUTES);
+
+        // Новый пользователь получает роль «читатель».
+        $validated['role_id'] = Role::where('slug', Role::READER)->value('id');
 
         // Пароль хэшируется автоматически (cast 'hashed' в модели User).
         $user = User::create($validated);

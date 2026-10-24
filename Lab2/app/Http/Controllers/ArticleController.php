@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ArticleRequest;
 use App\Models\Article;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * CRUD для новостей (ресурсный контроллер).
+ * Права проверяются через ArticlePolicy: Gate::authorize() бросает
+ * AuthorizationException (ответ 403), если политика вернула отказ.
  */
 class ArticleController extends Controller
 {
@@ -30,6 +33,8 @@ class ArticleController extends Controller
      */
     public function create()
     {
+        Gate::authorize('create', Article::class);
+
         return view('articles.create', [
             'article' => new Article(['date' => now()]),
             'images'  => ArticleRequest::images(),
@@ -41,6 +46,8 @@ class ArticleController extends Controller
      */
     public function store(ArticleRequest $request)
     {
+        Gate::authorize('create', Article::class);
+
         $article = Article::create($request->validated());
 
         return redirect()
@@ -61,6 +68,8 @@ class ArticleController extends Controller
      */
     public function edit(Article $article)
     {
+        Gate::authorize('update', $article);
+
         return view('articles.edit', [
             'article' => $article,
             'images'  => ArticleRequest::images(),
@@ -72,6 +81,8 @@ class ArticleController extends Controller
      */
     public function update(ArticleRequest $request, Article $article)
     {
+        Gate::authorize('update', $article);
+
         $article->update($request->validated());
 
         return redirect()
@@ -84,6 +95,8 @@ class ArticleController extends Controller
      */
     public function destroy(Article $article)
     {
+        Gate::authorize('delete', $article);
+
         $article->delete();
 
         return redirect()

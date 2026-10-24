@@ -8,9 +8,9 @@
             <p class="eyebrow">Новости</p>
             <div class="page-head">
                 <h1 class="page-title">Новости из базы данных</h1>
-                @auth
+                @can('create', App\Models\Article::class)
                     <a href="{{ route('articles.create') }}" class="btn btn-solid">+ Добавить новость</a>
-                @endauth
+                @endcan
             </div>
 
             {{-- Пагинатор Article, переданный из ArticleController --}}
@@ -22,9 +22,9 @@
                             <th>Изображение</th>
                             <th>Название</th>
                             <th>Краткое описание</th>
-                            @auth
+                            @can('create', App\Models\Article::class)
                                 <th>Действия</th>
-                            @endauth
+                            @endcan
                         </tr>
                     </thead>
                     <tbody>
@@ -41,11 +41,11 @@
                                     <a href="{{ route('articles.show', $article) }}">{{ $article->name }}</a>
                                 </td>
                                 <td class="a-desc">{{ $article->short_desc }}</td>
-                                @auth
+                                @can('update', $article)
                                     <td>
                                         @include('articles.partials.actions', ['article' => $article])
                                     </td>
-                                @endauth
+                                @endcan
                             </tr>
                         @endforeach
                     </tbody>
@@ -55,7 +55,7 @@
                 {{ $articles->links('partials.pagination') }}
             @else
                 <p class="prose">Новостей пока нет. Выполните <code>php artisan migrate --seed</code>
-                    @auth или <a href="{{ route('articles.create') }}">добавьте первую</a>@endauth.</p>
+                    @can('create', App\Models\Article::class) или <a href="{{ route('articles.create') }}">добавьте первую</a>@endcan.</p>
             @endif
         </div>
     </section>

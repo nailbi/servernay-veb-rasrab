@@ -16,7 +16,12 @@
             <a href="{{ route('home') }}" class="logo">Мой сайт</a>
             <nav class="nav">
                 <a href="{{ route('home') }}" class="nav-link @if(request()->routeIs('home')) is-active @endif">Главная</a>
-                <a href="{{ route('articles.index') }}" class="nav-link @if(request()->routeIs('articles.*')) is-active @endif">Новости</a>
+                <a href="{{ route('articles.index') }}" class="nav-link @if(request()->routeIs('articles.index', 'articles.show')) is-active @endif">Новости</a>
+
+                {{-- Вкладка «Создать новость» — только для модератора (ArticlePolicy::create) --}}
+                @can('create', App\Models\Article::class)
+                    <a href="{{ route('articles.create') }}" class="nav-link @if(request()->routeIs('articles.create')) is-active @endif">Создать новость</a>
+                @endcan
                 <a href="{{ route('about') }}" class="nav-link @if(request()->routeIs('about')) is-active @endif">О нас</a>
                 <a href="{{ route('contacts') }}" class="nav-link @if(request()->routeIs('contacts')) is-active @endif">Контакты</a>
 
@@ -27,7 +32,7 @@
                 @endguest
 
                 @auth
-                    <span class="nav-user">{{ auth()->user()->name }}</span>
+                    <span class="nav-user">{{ auth()->user()->name }} · {{ auth()->user()->role?->name ?? 'без роли' }}</span>
                     <form action="{{ route('logout') }}" method="POST" class="nav-logout">
                         @csrf
                         <button type="submit" class="btn">Выйти</button>

@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Article;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 /**
@@ -11,10 +13,17 @@ use Illuminate\Validation\Rule;
 class ArticleRequest extends FormRequest
 {
     /**
-     * Создавать и редактировать статьи может любой пользователь.
+     * Права проверяются до валидации: читатель получит 403, а не ошибки полей.
+     * Gate::authorize() бросает исключение с текстом из ArticlePolicy.
      */
     public function authorize(): bool
     {
+        $article = $this->route('article');
+
+        $article
+            ? Gate::authorize('update', $article)
+            : Gate::authorize('create', Article::class);
+
         return true;
     }
 
