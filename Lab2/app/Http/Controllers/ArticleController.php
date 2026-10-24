@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ArticleRequest;
+use App\Mail\NewArticleMail;
 use App\Models\Article;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -49,6 +53,13 @@ class ArticleController extends Controller
         Gate::authorize('create', Article::class);
 
         $article = Article::create($request->validated());
+
+        // После сохранения статьи — письмо всем модераторам.
+        $moderators = User::whereRelation('role', 'slug', Role::MODERATOR)->pluck('email');
+
+        if ($moderators->isNotEmpty()) {
+            Mail::to($moderators)->send(new NewArticleMail($article));
+        }
 
         return redirect()
             ->route('articles.show', $article)
