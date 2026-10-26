@@ -3,11 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ArticleRequest;
-use App\Mail\NewArticleMail;
+use App\Jobs\VeryLongJob;
 use App\Models\Article;
-use App\Models\Role;
-use App\Models\User;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -54,12 +51,9 @@ class ArticleController extends Controller
 
         $article = Article::create($request->validated());
 
-        // После сохранения статьи — письмо всем модераторам.
-        $moderators = User::whereRelation('role', 'slug', Role::MODERATOR)->pluck('email');
-
-        if ($moderators->isNotEmpty()) {
-            Mail::to($moderators)->send(new NewArticleMail($article));
-        }
+        // Письмо модераторам отправляется не здесь, а в очереди:
+        // задание пишется в таблицу jobs, пользователь не ждёт SMTP.
+        VeryLongJob::dispatch($article);
 
         return redirect()
             ->route('articles.show', $article)
