@@ -47,6 +47,14 @@ php artisan serve
 
 Открыть сайт в одной вкладке, в другой (под модератором) создать статью — в первой всплывёт уведомление.
 
+## ЛР12 — Уведомление читателей о новой статье
+
+- [x] Таблица `notifications` — `php artisan make:notifications-table` (в методичке `notification:table`), модель `User` использует трейт `Notifiable`
+- [x] [`app/Notifications/NewArticleNotification.php`](app/Notifications/NewArticleNotification.php) (`make:notification`): статья в конструкторе, `via()` → `database`, `toDatabase()` → id, название и дата статьи
+- [x] `ArticleController@store`: `Notification::send()` всем читателям, кроме автора статьи
+- [x] В шапке макета — колокольчик со счётчиком и выпадающим списком непрочитанных уведомлений
+- [x] Переход по уведомлению — [`NotificationController@read`](app/Http/Controllers/NotificationController.php): `markAsRead()` и открытие статьи
+
 ## Структура сайта
 
 - **Header:** меню (Главная / О нас / Контакты)

@@ -4,6 +4,7 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\MainController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 // Главная — список статей из json-файла (метод index контроллера).
@@ -76,4 +77,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Отклонить комментарий.
     Route::delete('/comments/{comment}/reject', [CommentController::class, 'reject'])
         ->name('comments.reject');
+
+    // Уведомление о новой статье: отметить прочитанным и открыть статью.
+    Route::get('/notifications/{id}', [NotificationController::class, 'read'])
+        ->name('notifications.read');
 });

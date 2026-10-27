@@ -6,7 +6,11 @@ use App\Events\NewArticleEvent;
 use App\Http\Requests\ArticleRequest;
 use App\Jobs\VeryLongJob;
 use App\Models\Article;
+use App\Models\Role;
+use App\Models\User;
+use App\Notifications\NewArticleNotification;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
 
 /**
  * CRUD для новостей (ресурсный контроллер).
@@ -58,6 +62,13 @@ class ArticleController extends Controller
 
         // ЛР11: пуш-уведомление всем, кто сейчас на сайте (канал test).
         NewArticleEvent::dispatch($article);
+
+        // ЛР12: уведомление в БД всем читателям, кроме того, кто создал статью.
+        $readers = User::whereRelation('role', 'slug', Role::READER)
+            ->whereKeyNot($request->user()->id)
+            ->get();
+
+        Notification::send($readers, new NewArticleNotification($article));
 
         return redirect()
             ->route('articles.show', $article)
