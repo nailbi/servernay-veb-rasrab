@@ -72,6 +72,26 @@ php artisan serve
 - [x] Расписание в [`routes/console.php`](routes/console.php): `Schedule::command('stats:daily')->everyMinute()`
 - [x] Запуск: `php artisan schedule:run` (разово) или `php artisan schedule:work`; при `MAIL_MAILER=log` письмо пишется в `storage/logs/laravel.log`
 
+## ЛР15 — Backend API
+
+- [x] Маршруты в [`routes/api.php`](routes/api.php) (подключён в `bootstrap/app.php`, префикс `/api`); маршруты сайта оставлены, чтобы работали ЛР11–14
+- [x] Папка `app/Http/Controllers/API`: [`AuthController`](app/Http/Controllers/API/AuthController.php) и [`ArticleController`](app/Http/Controllers/API/ArticleController.php) скопированы, namespace `App\Http\Controllers\API`
+- [x] Вместо `redirect`/`view` — `response()` с теми же данными (JSON); ошибки на `/api/*` тоже в JSON (401, 403, 404, 422)
+- [x] Аутентификация — токен Sanctum: `POST /api/login` возвращает `token`, дальше заголовок `Authorization: Bearer <token>`
+- [x] Коллекция для Postman: [`docs/postman/Lab15-API.postman_collection.json`](docs/postman/Lab15-API.postman_collection.json)
+
+| Метод | URL | Доступ |
+|---|---|---|
+| POST | `/api/register` | все |
+| POST | `/api/login` | все → `token` |
+| GET | `/api/user` | с токеном |
+| POST | `/api/logout` | с токеном |
+| GET | `/api/articles?page=N` | все |
+| GET | `/api/articles/{id}` | все (статья + одобренные комментарии) |
+| POST | `/api/articles` | модератор |
+| PUT | `/api/articles/{id}` | модератор |
+| DELETE | `/api/articles/{id}` | модератор |
+
 ## Структура сайта
 
 - **Header:** меню (Главная / О нас / Контакты)

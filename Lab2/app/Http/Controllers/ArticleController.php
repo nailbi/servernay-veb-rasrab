@@ -75,6 +75,9 @@ class ArticleController extends Controller
             fn () => Article::latest('date')->latest('id')->paginate(self::PER_PAGE)
         );
 
+        // Пагинатор мог попасть в кэш из API (ЛР15) — ссылки на страницы ведём на сайт.
+        $articles->withPath(route('articles.index'));
+
         return view('articles.index', ['articles' => $articles]);
     }
 

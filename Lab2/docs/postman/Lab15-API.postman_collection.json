@@ -1,0 +1,171 @@
+{
+  "info": {
+    "name": "ЛР15 · Backend API (Lab2)",
+    "description": "Проверка REST API сайта. Сначала выполните «Вход (модератор)» — токен сохранится в переменную token и подставится в остальные запросы. Сайт: php artisan serve.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000/api" },
+    { "key": "token", "value": "" },
+    { "key": "article_id", "value": "1" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Аутентификация",
+      "item": [
+        {
+          "name": "Регистрация",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Читатель из Postman\",\n  \"email\": \"postman-{{$timestamp}}@mail.ru\",\n  \"password\": \"secret12\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{base_url}}/register"
+          }
+        },
+        {
+          "name": "Вход (модератор)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Статус 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('token', pm.response.json().token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"moderator@mail.ru\",\n  \"password\": \"password\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{base_url}}/login"
+          }
+        },
+        {
+          "name": "Вход (читатель)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": ["pm.collectionVariables.set('token', pm.response.json().token);"]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"reader@mail.ru\",\n  \"password\": \"password\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{base_url}}/login"
+          }
+        },
+        {
+          "name": "Текущий пользователь",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/user"
+          }
+        },
+        {
+          "name": "Выход",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Статьи",
+      "item": [
+        {
+          "name": "Список (страница 1)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/articles?page=1", "host": ["{{base_url}}"], "path": ["articles"], "query": [{ "key": "page", "value": "1" }] }
+          }
+        },
+        {
+          "name": "Одна статья с комментариями",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/articles/{{article_id}}"
+          }
+        },
+        {
+          "name": "Создать (нужен токен модератора)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Статус 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('article_id', pm.response.json().article.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"{{$isoTimestamp}}\",\n  \"name\": \"Статья из Postman\",\n  \"preview_image\": \"preview.jpg\",\n  \"full_image\": \"full.jpeg\",\n  \"short_desc\": \"Создана запросом POST /api/articles.\",\n  \"desc\": \"Проверка лабораторной работы №15 в Postman.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{base_url}}/articles"
+          }
+        },
+        {
+          "name": "Изменить",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"{{$isoTimestamp}}\",\n  \"name\": \"Статья из Postman (изменена)\",\n  \"preview_image\": \"preview_2.jpg\",\n  \"full_image\": \"full_2.jpeg\",\n  \"short_desc\": \"Изменена запросом PUT /api/articles/{id}.\",\n  \"desc\": \"Проверка лабораторной работы №15 в Postman.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{base_url}}/articles/{{article_id}}"
+          }
+        },
+        {
+          "name": "Удалить",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/articles/{{article_id}}"
+          }
+        }
+      ]
+    }
+  ]
+}
