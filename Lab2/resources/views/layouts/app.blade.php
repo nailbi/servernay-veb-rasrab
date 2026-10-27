@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    {{-- ЛР11: сборка Vite — Vue-компонент с пуш-уведомлениями и laravel-echo --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
     {{-- ШАПКА САЙТА: логотип + меню навигации --}}
@@ -58,6 +60,9 @@
 
         @yield('content')
     </main>
+
+    {{-- Точка монтирования Vue: всплывающее уведомление о новой статье --}}
+    <div id="app"></div>
 
     {{-- ПОДВАЛ: ФИО и группа --}}
     <footer class="site-footer">

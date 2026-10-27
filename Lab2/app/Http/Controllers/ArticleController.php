@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewArticleEvent;
 use App\Http\Requests\ArticleRequest;
 use App\Jobs\VeryLongJob;
 use App\Models\Article;
@@ -54,6 +55,9 @@ class ArticleController extends Controller
         // Письмо модераторам отправляется не здесь, а в очереди:
         // задание пишется в таблицу jobs, пользователь не ждёт SMTP.
         VeryLongJob::dispatch($article);
+
+        // ЛР11: пуш-уведомление всем, кто сейчас на сайте (канал test).
+        NewArticleEvent::dispatch($article);
 
         return redirect()
             ->route('articles.show', $article)

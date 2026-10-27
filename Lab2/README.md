@@ -26,6 +26,27 @@
 - [x] `preview_image` — ссылка на страницу `galery`
 - [x] На странице `galery` отображается `full_image` — [`resources/views/galery.blade.php`](resources/views/galery.blade.php)
 
+## ЛР11 — Настройка широковещания (Pusher, Laravel Echo, Vue)
+
+- [x] `composer require pusher/pusher-php-server`, `config/broadcasting.php` — драйвер по умолчанию `pusher`
+- [x] Событие [`app/Events/NewArticleEvent.php`](app/Events/NewArticleEvent.php) (`make:event`): `ShouldBroadcast`, статья в конструкторе, публичный `Channel('test')`, `broadcastWith()` → `article {id, name}`
+- [x] Событие вызывается в `ArticleController@store` после создания статьи
+- [x] `npm install vue laravel-echo pusher-js @vitejs/plugin-vue`, [`vite.config.js`](vite.config.js)
+- [x] Echo настроен в [`resources/js/bootstrap.js`](resources/js/bootstrap.js), Vue подключён в [`resources/js/app.js`](resources/js/app.js)
+- [x] Компонент [`resources/js/components/App.vue`](resources/js/components/App.vue) слушает `NewArticleEvent` на канале `test` и показывает всплывающее уведомление
+- [x] В макете — `@vite([...])` и `<div id="app">`
+
+Запуск: заполнить `PUSHER_APP_ID/KEY/SECRET` в `.env` (кластер `eu`), затем
+
+```bash
+php artisan config:clear
+npm install && npm run build   # или npm run watch в отдельном терминале
+php artisan queue:work         # трансляция события идёт через очередь
+php artisan serve
+```
+
+Открыть сайт в одной вкладке, в другой (под модератором) создать статью — в первой всплывёт уведомление.
+
 ## Структура сайта
 
 - **Header:** меню (Главная / О нас / Контакты)

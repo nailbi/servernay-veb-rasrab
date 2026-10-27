@@ -1,0 +1,43 @@
+/* ЛР11: всплывающее пуш-уведомление о новой статье (компонент App.vue).
+   Основные стили сайта — в public/css/app.css. */
+.push-alert {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: 420px;
+    padding: 16px 20px;
+    background: var(--text, #0f0f0f);
+    color: var(--bg, #ffffff);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    font-family: var(--sans, sans-serif);
+    animation: push-alert-in 0.25s ease-out;
+}
+
+.push-alert a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+.push-alert__close {
+    margin-left: auto;
+    background: none;
+    border: 0;
+    color: inherit;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+@keyframes push-alert-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+    .push-alert { left: 16px; right: 16px; bottom: 16px; }
+}

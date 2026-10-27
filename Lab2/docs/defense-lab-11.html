@@ -1,0 +1,705 @@
+<title>Защита ЛР 11</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: одна колонка-конспект с липкой навигацией; схема пути уведомления, код в «терминальных» блоках, вопросы — раскрывающиеся карточки */
+:root {
+  --paper: #f6f7f9;
+  --sheet: #ffffff;
+  --ink: #16202b;
+  --body: #3a4654;
+  --muted: #6b7684;
+  --rule: #dfe3e8;
+  --accent: #c2410c;
+  --accent-soft: #fdeee6;
+  --ok: #15803d;
+  --ok-soft: #e7f5ec;
+  --code-bg: #101820;
+  --code-fg: #dbe4ee;
+  --code-cm: #7f8ea0;
+  --code-str: #f0b47a;
+  --code-kw: #8cc8ff;
+  --display: "Unbounded", "Segoe UI", system-ui, sans-serif;
+  --sans: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0e141b; --sheet: #151d26; --ink: #e8edf2; --body: #c2ccd6; --muted: #8995a3;
+    --rule: #26313d; --accent: #fb8a4c; --accent-soft: #2e1d14; --ok: #4ade80; --ok-soft: #12261a;
+    --code-bg: #0a0f14; --code-fg: #dbe4ee; --code-cm: #6f7e90; --code-str: #f0b47a; --code-kw: #8cc8ff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0e141b; --sheet: #151d26; --ink: #e8edf2; --body: #c2ccd6; --muted: #8995a3;
+  --rule: #26313d; --accent: #fb8a4c; --accent-soft: #2e1d14; --ok: #4ade80; --ok-soft: #12261a;
+  --code-bg: #0a0f14; --code-fg: #dbe4ee; --code-cm: #6f7e90; --code-str: #f0b47a; --code-kw: #8cc8ff;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper);
+  color: var(--body);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--sheet);
+}
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { color: var(--ink); text-wrap: balance; margin: 0; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(1.7rem, 4vw, 2.5rem); line-height: 1.15; letter-spacing: -0.01em; }
+h2 { font-family: var(--display); font-weight: 500; font-size: 1.45rem; line-height: 1.25; }
+h3 { font-size: 1.05rem; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--accent); }
+code { font-family: var(--mono); font-size: 0.88em; }
+:not(pre) > code { background: var(--accent-soft); color: var(--ink); padding: 0.1em 0.35em; border-radius: 4px; overflow-wrap: anywhere; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+
+/* ---- Шапка ---- */
+header.top { background: var(--sheet); border-bottom: 1px solid var(--rule); }
+header.top .wrap { padding-block: 40px 28px; display: grid; gap: 14px; }
+.lead { max-width: 62ch; font-size: 1.05rem; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 20px; font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+
+/* ---- Навигация ---- */
+nav.toc {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--sheet); border-bottom: 1px solid var(--rule);
+}
+nav.toc .wrap { display: flex; gap: 4px; overflow-x: auto; padding-block: 8px; scrollbar-width: none; }
+nav.toc a {
+  flex: none; text-decoration: none; color: var(--body); font-size: 0.9rem; font-weight: 500;
+  padding: 6px 12px; border-radius: 6px; white-space: nowrap;
+}
+nav.toc a:hover, nav.toc a:focus-visible { background: var(--accent-soft); color: var(--ink); outline: none; }
+nav.toc a.on { background: var(--ink); color: var(--sheet); }
+
+/* ---- Секции ---- */
+main section { padding-block: 44px 8px; scroll-margin-top: 56px; display: grid; gap: 18px; }
+main section + section { border-top: 1px solid var(--rule); }
+.sec-head { display: grid; gap: 6px; }
+.sec-head .sub { color: var(--muted); max-width: 62ch; }
+.commit { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+
+/* Пункты задания → что сделано */
+.tasks { display: grid; gap: 0; background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+.task { display: grid; grid-template-columns: 2.2rem minmax(0, 1fr); gap: 4px 12px; padding: 14px 16px; }
+.task + .task { border-top: 1px solid var(--rule); }
+.task .n { font-family: var(--mono); font-weight: 600; color: var(--accent); font-size: 0.9rem; padding-top: 2px; }
+.task .what { color: var(--ink); font-weight: 500; }
+.task .how { grid-column: 2; font-size: 0.93rem; }
+.files { grid-column: 2; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.files code { font-size: 0.75rem; background: transparent; border: 1px solid var(--rule); color: var(--muted); }
+
+/* Блоки кода */
+.snip { display: grid; gap: 0; border-radius: 10px; overflow: hidden; background: var(--code-bg); min-width: 0; }
+.snip-title { font-family: var(--mono); font-size: 0.75rem; color: var(--code-cm); padding: 10px 14px 0; }
+.snip pre { margin: 0; padding: 10px 14px 14px; overflow-x: auto; font-family: var(--mono); font-size: 0.82rem; line-height: 1.55; color: var(--code-fg); tab-size: 4; }
+.snip .cm { color: var(--code-cm); font-style: italic; }
+.snip .st { color: var(--code-str); }
+.snip .kw { color: var(--code-kw); }
+.snips { display: grid; gap: 14px; }
+@media (min-width: 900px) { .snips.two { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } }
+
+/* Сценарий показа */
+.demo { background: var(--ok-soft); border-radius: 10px; padding: 16px 18px; display: grid; gap: 8px; }
+.demo h3 { color: var(--ok); font-size: 0.95rem; }
+.demo ol { margin: 0; padding-left: 1.3rem; display: grid; gap: 4px; }
+
+.note { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; max-width: 70ch; }
+
+/* Схема потока */
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; }
+.flow .step {
+  flex: 1 1 140px; min-width: 0; background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px;
+  padding: 10px 12px; display: grid; gap: 2px; align-content: start;
+}
+.flow .step b { color: var(--ink); font-size: 0.92rem; }
+.flow .step span { font-size: 0.8rem; color: var(--muted); font-family: var(--mono); overflow-wrap: anywhere; }
+.flow .step.hot { border-color: var(--accent); background: var(--accent-soft); }
+.flow .arr { align-self: center; color: var(--muted); font-family: var(--mono); }
+@media (max-width: 640px) { .flow { flex-direction: column; } .flow .arr { transform: rotate(90deg); align-self: flex-start; margin-left: 20px; } }
+
+/* Учётки */
+.accounts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.acc { background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; }
+.acc .role { font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+.acc .login { font-family: var(--mono); color: var(--ink); font-size: 0.92rem; overflow-wrap: anywhere; }
+.acc .can { font-size: 0.88rem; }
+
+/* Вопросы */
+.qa-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.progress { flex: 1 1 200px; height: 8px; background: var(--rule); border-radius: 99px; overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; background: var(--ok); transition: width .3s; }
+.count { font-family: var(--mono); font-size: 0.85rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+.btn {
+  font: inherit; font-size: 0.85rem; font-weight: 500; color: var(--ink); background: var(--sheet);
+  border: 1px solid var(--rule); border-radius: 6px; padding: 6px 12px; cursor: pointer;
+}
+.btn:hover { border-color: var(--ink); }
+.btn:focus-visible, summary:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn[aria-pressed="true"] { background: var(--ink); color: var(--sheet); border-color: var(--ink); }
+.qgroup { display: grid; gap: 8px; }
+.qgroup h3 { font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; margin-top: 10px; }
+details.q { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; }
+details.q.done { border-color: color-mix(in srgb, var(--ok) 45%, var(--rule)); }
+details.q summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 12px 14px; color: var(--ink); font-weight: 500; }
+details.q summary::-webkit-details-marker { display: none; }
+details.q summary .chev { font-family: var(--mono); color: var(--muted); transition: transform .2s; }
+details.q[open] summary .chev { transform: rotate(90deg); }
+details.q input { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--ok); cursor: pointer; }
+details.q .a { padding: 0 14px 14px 44px; display: grid; gap: 8px; max-width: 78ch; }
+details.q .a ul { margin: 0; padding-left: 1.2rem; display: grid; gap: 2px; }
+.hide-done details.q.done { display: none; }
+
+/* Команды */
+.cmds { display: grid; gap: 0; background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+.cmd { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 4px 16px; padding: 10px 14px; align-items: center; }
+.cmd + .cmd { border-top: 1px solid var(--rule); }
+.cmd code { background: transparent; padding: 0; color: var(--ink); font-size: 0.84rem; }
+.cmd p { font-size: 0.88rem; color: var(--muted); }
+@media (max-width: 640px) { .cmd { grid-template-columns: minmax(0, 1fr); } }
+
+footer { padding-block: 40px; color: var(--muted); font-size: 0.85rem; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Серверная веб-разработка · Laravel 12</p>
+    <h1>Защита лабораторной 11</h1>
+    <p class="lead">Широковещание: когда модератор добавляет статью, всем, кто сейчас на сайте, всплывает уведомление. Pusher, Laravel Echo и компонент Vue. Что сделано по пунктам задания, где лежит код, как показать и что могут спросить.</p>
+    <div class="meta">
+      <span>репозиторий: servernay-veb-rasrab → Lab2</span>
+      <span>событие NewArticleEvent · канал test</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Разделы">
+  <div class="wrap">
+    <a href="#start">Перед защитой</a>
+    <a href="#flow">Путь уведомления</a>
+    <a href="#tasks">Пункты задания</a>
+    <a href="#env">Окружение</a>
+    <a href="#code">Код</a>
+    <a href="#demo">Как показать</a>
+    <a href="#trouble">Ошибки</a>
+    <a href="#qa">Вопросы</a>
+    <a href="#cmd">Команды</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============ ПЕРЕД ЗАЩИТОЙ ============ -->
+<section id="start">
+  <div class="sec-head">
+    <p class="eyebrow">Подготовка</p>
+    <h2>Перед защитой</h2>
+    <p class="sub">Нужны два процесса: сайт и воркер очереди. Событие транслируется через очередь, поэтому без <code>queue:work</code> уведомление не придёт.</p>
+  </div>
+
+  <div class="snips two">
+    <div class="snip"><div class="snip-title">терминал 1 · сборка и сайт</div><pre data-lang="sh">php artisan config:clear
+npm run build        # ключ Pusher попадает в JS при сборке
+php artisan serve</pre></div>
+    <div class="snip"><div class="snip-title">терминал 2 · очередь</div><pre data-lang="sh">php artisan queue:work
+
+# видно две задачи после создания статьи:
+# App\Jobs\VeryLongJob ........ DONE   (письмо, ЛР10)
+# App\Events\NewArticleEvent .. DONE   (пуш, ЛР11)</pre></div>
+  </div>
+
+  <div class="accounts">
+    <div class="acc">
+      <span class="role">Модератор</span>
+      <span class="login">moderator@mail.ru / password</span>
+      <p class="can">Создаёт статью. Открывайте в окне инкогнито, чтобы обычное окно осталось гостевым.</p>
+    </div>
+    <div class="acc">
+      <span class="role">Гость или читатель</span>
+      <span class="login">без входа</span>
+      <p class="can">Просто держит открытой любую страницу сайта. Ему и всплывает уведомление.</p>
+    </div>
+  </div>
+
+  <p class="note">Перед защитой проверьте, что в <code>.env</code> заполнены <code>PUSHER_APP_ID</code>, <code>PUSHER_APP_KEY</code>, <code>PUSHER_APP_SECRET</code> и <code>PUSHER_APP_CLUSTER=eu</code>. В <code>.env.example</code> ключи пустые, так и должно быть: этот файл попадает в git.</p>
+</section>
+
+<!-- ============ ПУТЬ ============ -->
+<section id="flow">
+  <div class="sec-head">
+    <p class="eyebrow">Главная схема</p>
+    <h2>Путь уведомления от формы до браузера</h2>
+    <p class="sub">Если попросят «объясните, как это работает», рассказывайте по этой цепочке слева направо.</p>
+  </div>
+
+  <div class="flow">
+    <div class="step"><b>Форма «Создать»</b><span>POST /articles</span></div>
+    <div class="arr">→</div>
+    <div class="step"><b>ArticleController@store</b><span>NewArticleEvent::dispatch($article)</span></div>
+    <div class="arr">→</div>
+    <div class="step"><b>Очередь</b><span>таблица jobs → queue:work</span></div>
+    <div class="arr">→</div>
+    <div class="step hot"><b>Pusher HTTP API</b><span>api-eu.pusher.com, подпись секретом</span></div>
+    <div class="arr">→</div>
+    <div class="step hot"><b>WebSocket</b><span>канал test, событие NewArticleEvent</span></div>
+    <div class="arr">→</div>
+    <div class="step"><b>Laravel Echo</b><span>channel('test').listen(...)</span></div>
+    <div class="arr">→</div>
+    <div class="step"><b>App.vue</b><span>article = data.article → v-if</span></div>
+  </div>
+
+  <p class="note">Laravel не держит соединения с браузерами сам. Он одним HTTP-запросом отдаёт событие в Pusher, а Pusher рассылает его по WebSocket всем подписчикам канала <code>test</code>. Поэтому уведомление получают только те, у кого страница открыта прямо сейчас.</p>
+</section>
+
+<!-- ============ ПУНКТЫ ЗАДАНИЯ ============ -->
+<section id="tasks">
+  <div class="sec-head">
+    <p class="eyebrow">Лабораторная №11 · добавление пуш-уведомления</p>
+    <h2>Пункты задания и что сделано</h2>
+    <p class="sub">Event · ShouldBroadcast · Channel · broadcastWith · Laravel Echo · pusher-js · Vue · Vite · Queue</p>
+  </div>
+
+  <div class="tasks">
+    <div class="task"><span class="n">1</span><p class="what">Класс события</p>
+      <p class="how">Создан командой <code>php artisan make:event NewArticleEvent</code>.</p>
+      <div class="files"><code>app/Events/NewArticleEvent.php</code></div></div>
+    <div class="task"><span class="n">2</span><p class="what">Интерфейс ShouldBroadcast</p>
+      <p class="how"><code>class NewArticleEvent implements ShouldBroadcast</code>. Laravel видит интерфейс и не просто вызывает слушателей, а ставит трансляцию в очередь.</p></div>
+    <div class="task"><span class="n">3</span><p class="what">Данные в конструктор</p>
+      <p class="how">Через конструктор передаётся созданная статья: <code>public function __construct(public Article $article)</code>.</p></div>
+    <div class="task"><span class="n">4</span><p class="what">broadcastOn: Channel вместо PrivateChannel</p>
+      <p class="how">Возвращает <code>[new Channel('test')]</code>. Канал публичный, подписаться может любой посетитель без входа.</p></div>
+    <div class="task"><span class="n">5</span><p class="what">broadcastWith</p>
+      <p class="how">Отдаёт только то, что нужно уведомлению: <code>['article' =&gt; ['id' =&gt; …, 'name' =&gt; …]]</code>. Без этого метода ушли бы все публичные свойства, то есть статья целиком с полным текстом.</p></div>
+    <div class="task"><span class="n">6</span><p class="what">Всплывающее окно во Vue-компоненте со слушателем Echo</p>
+      <p class="how">Компонент <code>App.vue</code>: в <code>created()</code> подписывается на канал, в шаблоне показывает плашку справа внизу с кнопкой закрытия.</p>
+      <div class="files"><code>resources/js/components/App.vue</code><code>resources/css/app.css</code></div></div>
+    <div class="task"><span class="n">7</span><p class="what">Слушателю передать канал, событие и ключ к данным</p>
+      <p class="how"><code>window.Echo.channel('test').listen('NewArticleEvent', (data) =&gt; { this.article = data.article })</code>. Ключ <code>article</code> совпадает с ключом из <code>broadcastWith</code>.</p></div>
+    <div class="task"><span class="n">8</span><p class="what">Данные в template, окно только при наличии данных</p>
+      <p class="how"><code>v-if="article != null"</code>: пока событие не пришло, <code>article</code> равно <code>null</code> и окна нет. Название статьи выводится ссылкой на <code>/articles/{id}</code>.</p></div>
+    <div class="task"><span class="n">9</span><p class="what">Пересобрать JS</p>
+      <p class="how"><code>npm run build</code> (или <code>npm run watch</code> во втором терминале). Готовые файлы лежат в <code>public/build</code>.</p></div>
+    <div class="task"><span class="n">10</span><p class="what">Запустить очередь</p>
+      <p class="how"><code>php artisan queue:work</code>. Очередь та же, что в ЛР10: <code>QUEUE_CONNECTION=database</code>.</p></div>
+    <div class="task"><span class="n">11</span><p class="what">Создать статью и получить уведомление</p>
+      <p class="how">Проверено вживую: модератор создал статью «ЛР11: проверка пуш-уведомления», в гостевом окне всплыло уведомление.</p>
+      <div class="files"><code>app/Http/Controllers/ArticleController.php</code></div></div>
+  </div>
+</section>
+
+<!-- ============ ОКРУЖЕНИЕ ============ -->
+<section id="env">
+  <div class="sec-head">
+    <p class="eyebrow">Настройка окружения</p>
+    <h2>Что сделано и чем Laravel 12 отличается от методички</h2>
+    <p class="sub">Методичка написана под Laravel 9–10. В проекте Laravel 12, поэтому несколько шагов выглядят иначе. Если спросят, почему не так, как в задании, ответ здесь.</p>
+  </div>
+
+  <div class="cmds">
+    <div class="cmd"><code>composer require pusher/pusher-php-server</code><p>Установлен, в composer.json версия ^7.2. Через этот пакет Laravel отправляет события в Pusher.</p></div>
+    <div class="cmd"><code>раскомментировать BroadcastServiceProvider</code><p>В Laravel 11+ этого провайдера нет. Для публичного канала он не нужен: регистрирует только маршрут авторизации приватных каналов.</p></div>
+    <div class="cmd"><code>config/broadcasting.php → 'pusher'</code><p>Файла в Laravel 12 по умолчанию нет. Опубликован командой <code>php artisan config:publish broadcasting</code>, затем <code>'default' =&gt; env('BROADCAST_DRIVER', 'pusher')</code>.</p></div>
+    <div class="cmd"><code>.env: ключи Pusher, кластер eu, BROADCAST_DRIVER=pusher</code><p>Сделано. Добавлены ещё <code>VITE_PUSHER_APP_KEY</code> и <code>VITE_PUSHER_APP_CLUSTER</code> для фронтенда.</p></div>
+    <div class="cmd"><code>php artisan config:clear</code><p>Сбрасывает кэш конфигурации, чтобы Laravel прочитал новый .env.</p></div>
+    <div class="cmd"><code>npm install --save-dev laravel-echo pusher-js</code><p>Установлены. Вместе с ними vite, laravel-vite-plugin, @vitejs/plugin-vue и axios. Своего package.json в проекте не было, он создан.</p></div>
+    <div class="cmd"><code>bootstrap.js: раскомментировать строки 18–32</code><p>В Laravel 12 этих строк нет. Блок с <code>new Echo({ broadcaster: 'pusher', … })</code> написан вручную.</p></div>
+    <div class="cmd"><code>npm install vue · @vitejs/plugin-vue · vite.config.js</code><p>Сделано, плагин <code>vue()</code> подключён в vite.config.js.</p></div>
+    <div class="cmd"><code>app.js: createApp(App).mount('#app')</code><p>Сделано.</p></div>
+    <div class="cmd"><code>layout: @vite([...]) и &lt;div id="app"&gt;</code><p>Добавлено в <code>resources/views/layouts/app.blade.php</code>, поэтому уведомление работает на любой странице сайта.</p></div>
+  </div>
+
+  <p class="note">Дополнительно: в <code>config/broadcasting.php</code> добавлен параметр <code>'verify' =&gt; env('PUSHER_CA_BUNDLE')</code>. PHP на Windows не знал, где корневые сертификаты, и не мог подключиться к Pusher по HTTPS (cURL error 60). Подробности в разделе «Ошибки».</p>
+</section>
+
+<!-- ============ КОД ============ -->
+<section id="code">
+  <div class="sec-head">
+    <p class="eyebrow">Ключевой код</p>
+    <h2>Что открыть, если попросят показать код</h2>
+  </div>
+
+  <div class="snips">
+    <div class="snip"><div class="snip-title">app/Events/NewArticleEvent.php</div><pre data-lang="php">class NewArticleEvent implements ShouldBroadcast
+{
+    use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    public function __construct(public Article $article)
+    {
+    }
+
+    // Публичный канал: уведомление получают все посетители.
+    public function broadcastOn(): array
+    {
+        return [new Channel('test')];
+    }
+
+    // Данные, которые уйдут в браузер (ключ article).
+    public function broadcastWith(): array
+    {
+        return [
+            'article' =&gt; [
+                'id'   =&gt; $this-&gt;article-&gt;id,
+                'name' =&gt; $this-&gt;article-&gt;name,
+            ],
+        ];
+    }
+}</pre></div>
+  </div>
+
+  <div class="snips two">
+    <div class="snip"><div class="snip-title">ArticleController@store</div><pre data-lang="php">$article = Article::create($request-&gt;validated());
+
+// ЛР10: письмо модераторам через очередь.
+VeryLongJob::dispatch($article);
+
+// ЛР11: пуш всем, кто сейчас на сайте.
+NewArticleEvent::dispatch($article);</pre></div>
+    <div class="snip"><div class="snip-title">resources/js/bootstrap.js</div><pre data-lang="js">import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+
+window.Pusher = Pusher;
+
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: import.meta.env.VITE_PUSHER_APP_KEY,
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+    forceTLS: true,
+});</pre></div>
+  </div>
+
+  <div class="snips two">
+    <div class="snip"><div class="snip-title">resources/js/components/App.vue</div><pre data-lang="js">&lt;template&gt;
+  &lt;div v-if="article != null" class="push-alert" role="alert"&gt;
+    Добавлена новая статья
+    &lt;strong&gt;&lt;a :href="`/articles/${article.id}`"&gt;{{ article.name }}&lt;/a&gt;&lt;/strong&gt;
+    &lt;button @click="article = null"&gt;×&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script&gt;
+export default {
+  data() { return { article: null } },
+  created() {
+    window.Echo.channel('test').listen('NewArticleEvent', (data) =&gt; {
+      console.log(data);
+      this.article = data.article;
+    });
+  },
+};
+&lt;/script&gt;</pre></div>
+    <div class="snip"><div class="snip-title">resources/js/app.js · vite.config.js · layout</div><pre data-lang="js">// app.js
+import './bootstrap';
+import { createApp } from 'vue';
+import App from './components/App.vue';
+createApp(App).mount('#app');
+
+// vite.config.js
+plugins: [
+    vue(),
+    laravel({ input: ['resources/css/app.css', 'resources/js/app.js'], refresh: true }),
+],
+
+// layouts/app.blade.php
+@vite(['resources/css/app.css', 'resources/js/app.js'])
+&lt;div id="app"&gt;&lt;/div&gt;</pre></div>
+  </div>
+
+  <div class="snip"><div class="snip-title">.env (значения ключей не показывайте)</div><pre data-lang="sh">BROADCAST_DRIVER=pusher
+PUSHER_APP_ID=…
+PUSHER_APP_KEY=…          # публичный, попадает в JS
+PUSHER_APP_SECRET=…       # только на сервере, им подписываются запросы
+PUSHER_APP_CLUSTER=eu
+
+VITE_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+
+QUEUE_CONNECTION=database   # с ЛР10</pre></div>
+</section>
+
+<!-- ============ ДЕМО ============ -->
+<section id="demo">
+  <div class="sec-head">
+    <p class="eyebrow">Демонстрация</p>
+    <h2>Как показать работу</h2>
+  </div>
+
+  <div class="demo">
+    <h3>Сценарий на 2 минуты</h3>
+    <ol>
+      <li>Запустите <code>php artisan serve</code> и <code>php artisan queue:work</code> в двух терминалах.</li>
+      <li>Окно 1 (обычное): откройте <code>http://localhost:8000/articles</code> и откройте DevTools → Console.</li>
+      <li>Окно 2 (инкогнито): войдите как <code>moderator@mail.ru</code>, нажмите «Создать новость», заполните и сохраните.</li>
+      <li>В терминале очереди появятся строки <code>VeryLongJob … DONE</code> и <code>NewArticleEvent … DONE</code>.</li>
+      <li>В окне 1 справа внизу всплывёт «Добавлена новая статья …», в консоли будет объект <code>{article: {id, name}, socket: null}</code>. Нажмите на название, чтобы перейти к статье.</li>
+      <li>Для эффекта: на dashboard.pusher.com откройте приложение → <b>Debug console</b>. Там видно подключение браузера и само событие на канале <code>test</code>.</li>
+    </ol>
+  </div>
+
+  <div class="demo">
+    <h3>Покажите, зачем нужна очередь</h3>
+    <ol>
+      <li>Остановите <code>queue:work</code> (Ctrl+C) и создайте ещё одну статью: уведомления нет, задание лежит в таблице <code>jobs</code>.</li>
+      <li>Снова запустите <code>queue:work</code>: задание выполнится, и уведомление сразу всплывёт.</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ ОШИБКИ ============ -->
+<section id="trouble">
+  <div class="sec-head">
+    <p class="eyebrow">Если что-то не работает</p>
+    <h2>Ошибки, которые уже встречались</h2>
+    <p class="sub">Все они случились при настройке этой лабы. Если спросят «какие были трудности», это готовый ответ.</p>
+  </div>
+
+  <div class="cmds">
+    <div class="cmd"><code>cURL error 60: unable to get local issuer certificate</code><p>PHP на Windows не знает корневые SSL-сертификаты. В .env указан <code>PUSHER_CA_BUNDLE</code> (bundle из Git for Windows), он передаётся Guzzle как <code>verify</code>. Другой способ: <code>curl.cainfo</code> в php.ini.</p></div>
+    <div class="cmd"><code>Pusher error: Invalid signature</code><p>Неверный <code>PUSHER_APP_SECRET</code>. Сервер подписывает запрос HMAC-SHA256 секретом, Pusher проверяет подпись. Секрет — 20 символов 0–9 и a–f.</p></div>
+    <div class="cmd"><code>в консоли: state disconnected</code><p>Неверный <code>PUSHER_APP_KEY</code> или кластер. Ключ встроен в JS при сборке: после правки .env нужен <code>npm run build</code>.</p></div>
+    <div class="cmd"><code>уведомление не приходит, ошибок нет</code><p>Не запущен <code>queue:work</code>. Событие лежит в таблице jobs.</p></div>
+    <div class="cmd"><code>Vite: connection refused</code><p>Был запущен и закрыт <code>npm run dev</code>, остался файл <code>public/hot</code>. Решение из методички: закрыть dev-сервер и выполнить <code>npm run build</code>.</p></div>
+    <div class="cmd"><code>bootstrap/cache directory must be present and writable</code><p>OneDrive ставит на папку атрибут «только чтение». Его сняли, после этого composer смог записать кэш пакетов.</p></div>
+  </div>
+</section>
+
+<!-- ============ ВОПРОСЫ ============ -->
+<section id="qa">
+  <div class="sec-head">
+    <p class="eyebrow">Самопроверка</p>
+    <h2>Вопросы, которые могут задать</h2>
+    <p class="sub">Сначала ответьте сами, потом раскройте ответ. Галочка отмечает выученный вопрос и запоминается в этом браузере.</p>
+  </div>
+
+  <div class="qa-bar">
+    <span class="count" id="qa-count">0 из 0</span>
+    <div class="progress" aria-hidden="true"><i id="qa-bar"></i></div>
+    <button type="button" class="btn" id="qa-hide" aria-pressed="false">Скрыть выученные</button>
+    <button type="button" class="btn" id="qa-open">Раскрыть все</button>
+    <button type="button" class="btn" id="qa-reset">Сбросить отметки</button>
+  </div>
+
+  <div id="qa-list">
+    <div class="qgroup">
+      <h3>Идея широковещания</h3>
+
+      <details class="q" data-id="what-broadcast"><summary><input type="checkbox" aria-label="Выучено"><span>Что такое широковещание (broadcasting) в Laravel?</span><span class="chev">›</span></summary>
+        <div class="a"><p>Это передача серверных событий в браузер в реальном времени. Событие Laravel, помеченное <code>ShouldBroadcast</code>, отправляется в канал, а все браузеры, подписанные на этот канал, сразу получают его по WebSocket. Страницу обновлять не нужно.</p></div></details>
+
+      <details class="q" data-id="why-pusher"><summary><input type="checkbox" aria-label="Выучено"><span>Зачем нужен Pusher? Почему Laravel не может отправить данные браузеру сам?</span><span class="chev">›</span></summary>
+        <div class="a"><p>HTTP работает по схеме «запрос — ответ»: сервер отвечает, только когда браузер спросил. Чтобы сервер мог сам прислать данные, нужно постоянное соединение (WebSocket). <code>php artisan serve</code> и обычный PHP такие соединения не держат. Pusher — внешний сервис, который держит WebSocket-соединения со всеми браузерами. Laravel отправляет ему событие одним HTTP-запросом, а Pusher рассылает его подписчикам.</p>
+          <p>Альтернативы: Laravel Reverb (свой WebSocket-сервер, в Laravel 11+ это вариант по умолчанию), Ably, Soketi.</p></div></details>
+
+      <details class="q" data-id="only-online"><summary><input type="checkbox" aria-label="Выучено"><span>Почему уведомление получают только те, кто сейчас на сайте?</span><span class="chev">›</span></summary>
+        <div class="a"><p>Событие нигде не сохраняется для браузеров. Pusher отправляет его тем, кто в этот момент подключён к каналу <code>test</code>. Кто зайдёт позже, его не увидит. Именно это и требовалось в задании: оповестить тех, кто сейчас на сайте.</p></div></details>
+
+      <details class="q" data-id="vs-mail"><summary><input type="checkbox" aria-label="Выучено"><span>Чем это отличается от письма модератору из ЛР8 и ЛР10?</span><span class="chev">›</span></summary>
+        <div class="a"><p>Письмо адресное и сохраняется: его получат только модераторы, и прочитать можно когда угодно. Пуш через широковещание получают все посетители, но только в момент, когда страница открыта. Оба запускаются из <code>ArticleController@store</code> и оба идут через очередь.</p></div></details>
+    </div>
+
+    <div class="qgroup">
+      <h3>Событие на сервере</h3>
+
+      <details class="q" data-id="should-broadcast"><summary><input type="checkbox" aria-label="Выучено"><span>Что делает интерфейс ShouldBroadcast? Чем он отличается от ShouldBroadcastNow?</span><span class="chev">›</span></summary>
+        <div class="a"><p>По этому интерфейсу Laravel понимает, что событие нужно транслировать. При <code>dispatch</code> он кладёт в очередь задание <code>BroadcastEvent</code>, а воркер уже отправляет его в Pusher. С <code>ShouldBroadcastNow</code> отправка идёт сразу, в том же запросе, без очереди. Тогда пользователь ждёт ответа Pusher, а при ошибке Pusher сломается и сохранение статьи.</p></div></details>
+
+      <details class="q" data-id="channel-types"><summary><input type="checkbox" aria-label="Выучено"><span>Почему Channel, а не PrivateChannel? Какие ещё бывают каналы?</span><span class="chev">›</span></summary>
+        <div class="a"><ul>
+          <li><code>Channel</code> — публичный, подписаться может кто угодно без авторизации. Подходит, потому что уведомление для всех посетителей.</li>
+          <li><code>PrivateChannel</code> — перед подпиской браузер спрашивает Laravel (<code>/broadcasting/auth</code>), разрешено ли. Правила пишутся в <code>routes/channels.php</code>. Подходит для личных уведомлений.</li>
+          <li><code>PresenceChannel</code> — приватный канал, который ещё и знает, кто в нём сейчас (например, «кто онлайн»).</li>
+        </ul></div></details>
+
+      <details class="q" data-id="broadcast-on"><summary><input type="checkbox" aria-label="Выучено"><span>Что возвращают broadcastOn и broadcastWith?</span><span class="chev">›</span></summary>
+        <div class="a"><p><code>broadcastOn</code> — список каналов, в которые уйдёт событие (у нас один: <code>test</code>). <code>broadcastWith</code> — массив данных, которые получит браузер. Если его не написать, Laravel отправит все публичные свойства события, то есть модель статьи целиком, включая полный текст. Это лишний трафик, а у Pusher ограничение 10 КБ на событие.</p></div></details>
+
+      <details class="q" data-id="event-name"><summary><input type="checkbox" aria-label="Выучено"><span>Почему на клиенте пишется listen('NewArticleEvent') без пространства имён?</span><span class="chev">›</span></summary>
+        <div class="a"><p>По умолчанию событие транслируется под полным именем класса <code>App\Events\NewArticleEvent</code>. Echo сам дописывает пространство имён <code>App\Events</code> к имени из <code>listen</code>. Если в событии задать <code>broadcastAs()</code> со своим именем, на клиенте нужно писать его с точкой в начале: <code>.listen('.article.created', …)</code>.</p></div></details>
+
+      <details class="q" data-id="serializes"><summary><input type="checkbox" aria-label="Выучено"><span>Зачем в событии SerializesModels?</span><span class="chev">›</span></summary>
+        <div class="a"><p>Событие сохраняется в таблицу <code>jobs</code>. <code>SerializesModels</code> записывает туда не всю статью, а только её id. Перед отправкой воркер заново загружает статью из базы, поэтому данные свежие. Так же было с <code>VeryLongJob</code> в ЛР10.</p></div></details>
+
+      <details class="q" data-id="why-queue"><summary><input type="checkbox" aria-label="Выучено"><span>Зачем запускать queue:work? Что будет без него?</span><span class="chev">›</span></summary>
+        <div class="a"><p><code>ShouldBroadcast</code> отправляет событие через очередь, а очередь у нас в базе (<code>QUEUE_CONNECTION=database</code>). Без воркера задание просто лежит в таблице <code>jobs</code>, и уведомление никто не получит. Когда воркер запустится, он выполнит накопившиеся задания.</p></div></details>
+
+      <details class="q" data-id="toothers"><summary><input type="checkbox" aria-label="Выучено"><span>Автор статьи тоже видит уведомление. Как его исключить?</span><span class="chev">›</span></summary>
+        <div class="a"><p>Вызвать <code>broadcast(new NewArticleEvent($article))-&gt;toOthers()</code> и добавить в событие трейт <code>InteractsWithSockets</code> (он уже есть). Echo добавляет к axios-запросам заголовок <code>X-Socket-ID</code> с id соединения, и Pusher не отправит событие этому соединению. Работает, только если форма отправлена через axios. У нас обычная HTML-форма, поэтому автор после перехода на новую страницу тоже может увидеть уведомление.</p></div></details>
+    </div>
+
+    <div class="qgroup">
+      <h3>Клиент: Echo, Vue, Vite</h3>
+
+      <details class="q" data-id="echo"><summary><input type="checkbox" aria-label="Выучено"><span>Что такое Laravel Echo и pusher-js? Почему нужны оба?</span><span class="chev">›</span></summary>
+        <div class="a"><p><code>pusher-js</code> — официальный клиент Pusher: открывает WebSocket и подписывается на каналы. <code>laravel-echo</code> — обёртка от Laravel поверх него: удобные методы <code>channel</code>, <code>private</code>, <code>listen</code>, автоматическое имя события и авторизация приватных каналов. Echo использует Pusher из <code>window.Pusher</code>.</p></div></details>
+
+      <details class="q" data-id="key-vs-secret"><summary><input type="checkbox" aria-label="Выучено"><span>Почему ключ Pusher лежит в JS, а секрет нет? Что значит префикс VITE_?</span><span class="chev">›</span></summary>
+        <div class="a"><p>Ключ (key) публичный: он только говорит Pusher, к какому приложению подключаться, и может быть виден в браузере. Секрет (secret) подписывает запросы на отправку событий. Если он утечёт, кто угодно сможет слать события от имени сайта, поэтому он только на сервере.</p>
+          <p>Vite передаёт в JS только переменные с префиксом <code>VITE_</code> (<code>import.meta.env.VITE_PUSHER_APP_KEY</code>). Значение подставляется при сборке, поэтому после смены ключа нужно заново выполнить <code>npm run build</code>.</p></div></details>
+
+      <details class="q" data-id="vue-mount"><summary><input type="checkbox" aria-label="Выучено"><span>Как Vue-компонент попадает на страницу?</span><span class="chev">›</span></summary>
+        <div class="a"><p>В <code>app.js</code>: <code>createApp(App).mount('#app')</code>. Vue находит элемент <code>&lt;div id="app"&gt;</code> в макете и рендерит в нём компонент. Скрипт подключается директивой <code>@vite</code> в <code>&lt;head&gt;</code>. Макет общий для всех страниц, поэтому уведомление приходит на любой странице.</p></div></details>
+
+      <details class="q" data-id="vue-parts"><summary><input type="checkbox" aria-label="Выучено"><span>Что делают data(), created(), v-if и :href в App.vue?</span><span class="chev">›</span></summary>
+        <div class="a"><ul>
+          <li><code>data()</code> — реактивное состояние компонента. <code>article: null</code>, пока ничего не пришло.</li>
+          <li><code>created()</code> — хук жизненного цикла, вызывается при создании компонента. Там подписка на канал.</li>
+          <li><code>v-if="article != null"</code> — окно есть в DOM, только когда пришли данные. Когда слушатель записал <code>this.article</code>, Vue сам перерисовал шаблон.</li>
+          <li><code>:href</code> — привязка атрибута к выражению: ссылка собирается из <code>article.id</code>.</li>
+        </ul></div></details>
+
+      <details class="q" data-id="vite"><summary><input type="checkbox" aria-label="Выучено"><span>Что такое Vite? Чем npm run build отличается от npm run dev?</span><span class="chev">›</span></summary>
+        <div class="a"><p>Vite собирает JS и CSS: превращает <code>.vue</code>-файлы в обычный JS, объединяет модули из node_modules, подставляет <code>VITE_</code>-переменные. <code>laravel-vite-plugin</code> связывает его с Laravel, а директива <code>@vite</code> подключает нужные файлы.</p>
+          <p><code>npm run build</code> один раз собирает файлы в <code>public/build</code>. <code>npm run dev</code> запускает dev-сервер с горячей перезагрузкой: страница берёт скрипты с него, и если его закрыть, будет connection refused. <code>npm run watch</code> пересобирает build при каждом изменении файлов.</p></div></details>
+    </div>
+
+    <div class="qgroup">
+      <h3>Настройка и ошибки</h3>
+
+      <details class="q" data-id="no-provider"><summary><input type="checkbox" aria-label="Выучено"><span>В методичке надо раскомментировать BroadcastServiceProvider. Почему у вас его нет?</span><span class="chev">›</span></summary>
+        <div class="a"><p>В Laravel 11 и 12 упростили структуру проекта: многих провайдеров и конфигов нет по умолчанию. Конфиг широковещания опубликован командой <code>php artisan config:publish broadcasting</code>. Провайдер в старых версиях только регистрировал маршрут <code>/broadcasting/auth</code> и подключал <code>routes/channels.php</code>. Это нужно для приватных каналов, а у нас публичный.</p></div></details>
+
+      <details class="q" data-id="curl60"><summary><input type="checkbox" aria-label="Выучено"><span>Что за ошибка cURL error 60 и как вы её решили?</span><span class="chev">›</span></summary>
+        <div class="a"><p>Laravel отправляет событие в Pusher по HTTPS. Чтобы проверить сертификат сервера Pusher, нужен список корневых сертификатов. PHP, установленный на Windows через winget, этот список не знает. Решение: в <code>client_options</code> Pusher передан <code>verify</code> с путём к CA-bundle (переменная <code>PUSHER_CA_BUNDLE</code>). Проверку сертификата не отключали, это было бы небезопасно.</p></div></details>
+
+      <details class="q" data-id="signature"><summary><input type="checkbox" aria-label="Выучено"><span>Что значит Invalid signature от Pusher?</span><span class="chev">›</span></summary>
+        <div class="a"><p>Каждый запрос на отправку события подписывается HMAC-SHA256 от метода, пути, параметров и тела запроса с секретом приложения. Pusher считает подпись своим экземпляром секрета. Если подписи не совпали, значит, в .env неверный <code>PUSHER_APP_SECRET</code>.</p></div></details>
+
+      <details class="q" data-id="debug"><summary><input type="checkbox" aria-label="Выучено"><span>Как проверить, что событие вообще уходит, если уведомления нет?</span><span class="chev">›</span></summary>
+        <div class="a"><ul>
+          <li>Терминал <code>queue:work</code>: есть ли строка <code>NewArticleEvent … DONE</code> или FAIL.</li>
+          <li>Pusher → Debug console: видно подключения браузеров и пришедшие события.</li>
+          <li>Консоль браузера: <code>window.Echo.connector.pusher.connection.state</code> должно быть <code>connected</code>.</li>
+          <li>Временно поставить <code>BROADCAST_DRIVER=log</code>: событие запишется в <code>storage/logs/laravel.log</code> вместе с каналом и данными.</li>
+        </ul></div></details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ КОМАНДЫ ============ -->
+<section id="cmd">
+  <div class="sec-head">
+    <p class="eyebrow">Шпаргалка</p>
+    <h2>Команды из этой лабы</h2>
+  </div>
+
+  <div class="cmds">
+    <div class="cmd"><code>php artisan make:event NewArticleEvent</code><p>Создать класс события в app/Events</p></div>
+    <div class="cmd"><code>composer require pusher/pusher-php-server</code><p>PHP-клиент Pusher для отправки событий</p></div>
+    <div class="cmd"><code>php artisan config:publish broadcasting</code><p>Создать config/broadcasting.php (Laravel 11+)</p></div>
+    <div class="cmd"><code>php artisan config:clear</code><p>Сбросить кэш конфигурации после правки .env</p></div>
+    <div class="cmd"><code>npm install vue</code><p>Фреймворк Vue 3</p></div>
+    <div class="cmd"><code>npm install --save-dev laravel-echo pusher-js @vitejs/plugin-vue</code><p>Клиент широковещания и поддержка .vue в Vite</p></div>
+    <div class="cmd"><code>npm run build</code><p>Собрать JS и CSS в public/build</p></div>
+    <div class="cmd"><code>npm run watch</code><p>Пересобирать при каждом изменении</p></div>
+    <div class="cmd"><code>php artisan queue:work</code><p>Запустить воркер: письма и трансляция событий</p></div>
+    <div class="cmd"><code>php artisan serve</code><p>Сайт на http://localhost:8000</p></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">Ведерников Никита Михайлович · группа 251-3210 · Серверная веб-разработка, ЛР11</div>
+</footer>
+
+<script>
+(function () {
+  // Подсветка кода: комментарии, строки, ключевые слова.
+  var KW = /\b(public|function|return|class|extends|implements|use|new|if|static|void|bool|int|string|null|true|false|const|import|from|export|default|this)\b/g;
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  document.querySelectorAll('.snip pre').forEach(function (pre) {
+    var lines = pre.textContent.split('\n').map(function (line) {
+      var m = line.match(/^(.*?)(\/\/.*|#.*)$/);
+      var code = m ? m[1] : line, cm = m ? m[2] : '';
+      if (m && /'[^']*$/.test(code)) { code = line; cm = ''; } // # или // внутри строки
+      var out = esc(code).replace(/('[^']*'|"[^"]*")/g, '<span class="st">$1</span>');
+      if (pre.dataset.lang === "php" || pre.dataset.lang === "js") out = out.replace(KW, function (w, _, i, str) {
+        return /<span class="st">[^<]*$/.test(str.slice(0, i)) ? w : '<span class="kw">' + w + '</span>';
+      });
+      return out + (cm ? '<span class="cm">' + esc(cm) + '</span>' : '');
+    });
+    pre.innerHTML = lines.join('\n');
+  });
+
+  // Самопроверка: отметки хранятся в localStorage этого браузера.
+  var KEY = 'defense-11-done';
+  var done = {};
+  try { done = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { done = {}; }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {} }
+
+  var qs = Array.prototype.slice.call(document.querySelectorAll('details.q'));
+  function update() {
+    var n = qs.filter(function (q) { return done[q.dataset.id]; }).length;
+    document.getElementById('qa-count').textContent = n + ' из ' + qs.length + ' выучено';
+    document.getElementById('qa-bar').style.width = (qs.length ? n / qs.length * 100 : 0) + '%';
+  }
+  qs.forEach(function (q) {
+    var box = q.querySelector('input');
+    box.checked = !!done[q.dataset.id];
+    q.classList.toggle('done', box.checked);
+    box.addEventListener('click', function (e) { e.stopPropagation(); });
+    box.addEventListener('change', function () {
+      if (box.checked) done[q.dataset.id] = 1; else delete done[q.dataset.id];
+      q.classList.toggle('done', box.checked);
+      save(); update();
+    });
+  });
+  update();
+
+  var list = document.getElementById('qa-list');
+  var hide = document.getElementById('qa-hide');
+  hide.addEventListener('click', function () {
+    var on = hide.getAttribute('aria-pressed') !== 'true';
+    hide.setAttribute('aria-pressed', on);
+    list.classList.toggle('hide-done', on);
+  });
+  var openBtn = document.getElementById('qa-open');
+  openBtn.addEventListener('click', function () {
+    var anyClosed = qs.some(function (q) { return !q.open; });
+    qs.forEach(function (q) { q.open = anyClosed; });
+    openBtn.textContent = anyClosed ? 'Свернуть все' : 'Раскрыть все';
+  });
+  var resetBtn = document.getElementById('qa-reset');
+  resetBtn.addEventListener('click', function () {
+    if (resetBtn.dataset.armed !== '1') {
+      resetBtn.dataset.armed = '1';
+      resetBtn.textContent = 'Точно сбросить?';
+      setTimeout(function () { resetBtn.dataset.armed = ''; resetBtn.textContent = 'Сбросить отметки'; }, 3000);
+      return;
+    }
+    done = {}; save();
+    qs.forEach(function (q) { q.querySelector('input').checked = false; q.classList.remove('done'); });
+    resetBtn.dataset.armed = ''; resetBtn.textContent = 'Сбросить отметки';
+    update();
+  });
+
+  // Подсветка текущего раздела в навигации.
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
+  var secs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  function spy() {
+    var y = window.scrollY + 90, cur = 0;
+    secs.forEach(function (s, i) { if (s && s.offsetTop <= y) cur = i; });
+    links.forEach(function (a, i) { a.classList.toggle('on', i === cur); });
+  }
+  window.addEventListener('scroll', spy, { passive: true });
+  spy();
+})();
+</script>
