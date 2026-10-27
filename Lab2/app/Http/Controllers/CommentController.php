@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\Comment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -61,6 +62,10 @@ class CommentController extends Controller
 
         $comment->is_approved = true;
         $comment->save();
+
+        // ЛР13: страница статьи закэширована вместе с комментариями —
+        // без этого одобренный комментарий не появился бы на сайте.
+        Cache::forget(ArticleController::articleCacheKey($comment->article_id));
 
         return redirect()
             ->route('comments.moderation')

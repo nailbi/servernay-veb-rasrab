@@ -55,6 +55,15 @@ php artisan serve
 - [x] В шапке макета — колокольчик со счётчиком и выпадающим списком непрочитанных уведомлений
 - [x] Переход по уведомлению — [`NotificationController@read`](app/Http/Controllers/NotificationController.php): `markAsRead()` и открытие статьи
 
+## ЛР13 — Кэширование новостей и комментариев
+
+- [x] `CACHE_STORE=database` (в методичке `CACHE_DRIVER`), таблица `cache` — `php artisan make:cache-table` (бывшая `cache:table`)
+- [x] `index` — `Cache::remember()` для каждой страницы пагинации (`articles:page:N`)
+- [x] `store` — `Cache::forget()` всех страниц списка
+- [x] `show` — `Cache::rememberForever()` статьи вместе с одобренными комментариями (`article:{id}`)
+- [x] `update`, `destroy` — `Cache::flush()`
+- [x] Дополнительно: при одобрении комментария кэш его статьи удаляется, иначе комментарий не появился бы на странице
+
 ## Структура сайта
 
 - **Header:** меню (Главная / О нас / Контакты)

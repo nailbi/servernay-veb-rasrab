@@ -9,6 +9,7 @@ use App\Models\Article;
 use App\Models\Role;
 use App\Models\User;
 use App\Notifications\NewArticleNotification;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
 
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\Notification;
  * CRUD для новостей (ресурсный контроллер).
  * Права проверяются через ArticlePolicy: Gate::authorize() бросает
  * AuthorizationException (ответ 403), если политика вернула отказ.
+ *
+ * ЛР13: список и страница статьи кэшируются (CACHE_STORE=database, таблица cache).
  */
 class ArticleController extends Controller
 {
@@ -25,11 +28,52 @@ class ArticleController extends Controller
     private const PER_PAGE = 5;
 
     /**
+     * Сколько секунд хранится в кэше страница списка.
+     */
+    private const LIST_TTL = 600;
+
+    /**
+     * Ключ кэша для страницы пагинации: articles:page:1, articles:page:2, …
+     */
+    public static function pageCacheKey(int $page): string
+    {
+        return 'articles:page:' . $page;
+    }
+
+    /**
+     * Ключ кэша для страницы просмотра статьи (вместе с комментариями).
+     */
+    public static function articleCacheKey(int|string $id): string
+    {
+        return 'article:' . $id;
+    }
+
+    /**
+     * Удаление из кэша всех страниц списка (включая пагинацию).
+     * Новая статья встаёт первой и сдвигает все страницы, поэтому чистим каждую.
+     */
+    public static function forgetListCache(): void
+    {
+        $pages = max(1, (int) ceil(Article::count() / self::PER_PAGE));
+
+        for ($page = 1; $page <= $pages + 1; $page++) {
+            Cache::forget(self::pageCacheKey($page));
+        }
+    }
+
+    /**
      * Список новостей с пагинацией: сначала свежие.
+     * Каждая страница пагинации кэшируется отдельно (remember).
      */
     public function index()
     {
-        $articles = Article::latest('date')->latest('id')->paginate(self::PER_PAGE);
+        $page = max(1, (int) request('page', 1));
+
+        $articles = Cache::remember(
+            self::pageCacheKey($page),
+            self::LIST_TTL,
+            fn () => Article::latest('date')->latest('id')->paginate(self::PER_PAGE)
+        );
 
         return view('articles.index', ['articles' => $articles]);
     }
@@ -56,6 +100,9 @@ class ArticleController extends Controller
 
         $article = Article::create($request->validated());
 
+        // ЛР13: список изменился — удаляем закэшированные страницы (forget).
+        self::forgetListCache();
+
         // Письмо модераторам отправляется не здесь, а в очереди:
         // задание пишется в таблицу jobs, пользователь не ждёт SMTP.
         VeryLongJob::dispatch($article);
@@ -77,15 +124,22 @@ class ArticleController extends Controller
 
     /**
      * Просмотр одной новости.
+     * Статья вместе с одобренными комментариями кэшируется без срока (rememberForever).
+     * Поэтому здесь id, а не привязка модели: при попадании в кэш запроса к БД нет.
      */
-    public function show(Article $article)
+    public function show(string $article)
     {
-        // На странице — только комментарии, прошедшие модерацию.
-        $comments = $article->comments()->approved()->with('user')->oldest()->get();
+        $article = Cache::rememberForever(
+            self::articleCacheKey($article),
+            fn () => Article::with([
+                // На странице — только комментарии, прошедшие модерацию.
+                'comments' => fn ($query) => $query->approved()->with('user')->oldest(),
+            ])->findOrFail($article)
+        );
 
         return view('articles.show', [
             'article'  => $article,
-            'comments' => $comments,
+            'comments' => $article->comments,
         ]);
     }
 
@@ -111,6 +165,9 @@ class ArticleController extends Controller
 
         $article->update($request->validated());
 
+        // ЛР13: данные статьи могли быть в любом кэше — чистим весь (flush).
+        Cache::flush();
+
         return redirect()
             ->route('articles.show', $article)
             ->with('success', 'Новость «' . $article->name . '» обновлена.');
@@ -124,6 +181,9 @@ class ArticleController extends Controller
         Gate::authorize('delete', $article);
 
         $article->delete();
+
+        // ЛР13: статья пропала из списка и со своей страницы — чистим кэш (flush).
+        Cache::flush();
 
         return redirect()
             ->route('articles.index')
