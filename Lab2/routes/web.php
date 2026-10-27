@@ -58,7 +58,13 @@ Route::resource('articles', ArticleController::class)
     ->middleware('auth:sanctum');
 
 // Просмотр списка и отдельной новости доступен всем.
-Route::resource('articles', ArticleController::class)->only(['index', 'show']);
+Route::resource('articles', ArticleController::class)->only(['index']);
+
+// ЛР14: каждый просмотр статьи сохраняется в article_views (посредник track.view).
+Route::get('/articles/{article}', [ArticleController::class, 'show'])
+    ->whereNumber('article')
+    ->middleware('track.view')
+    ->name('articles.show');
 
 // Комментарии — только для авторизованных. Права проверяет CommentPolicy.
 Route::middleware('auth:sanctum')->group(function () {

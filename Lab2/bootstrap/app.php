@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\TrackArticleView;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,7 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // ЛР14: регистрация посредника (в Laravel 11+ вместо Kernel.php).
+        $middleware->alias([
+            'track.view' => TrackArticleView::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Свой ответ на отказ в доступе (AuthorizationException → 403):

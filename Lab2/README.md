@@ -64,6 +64,14 @@ php artisan serve
 - [x] `update`, `destroy` — `Cache::flush()`
 - [x] Дополнительно: при одобрении комментария кэш его статьи удаляется, иначе комментарий не появился бы на странице
 
+## ЛР14 — Планировщик задач
+
+- [x] Модель и миграция [`ArticleView`](app/Models/ArticleView.php) — таблица `article_views` (url, статья, пользователь, ip)
+- [x] Посредник [`TrackArticleView`](app/Http/Middleware/TrackArticleView.php) (`make:middleware`) сохраняет каждый просмотр статьи; зарегистрирован как `track.view` в `bootstrap/app.php` (в Laravel 11+ нет `Kernel.php`) и навешан на маршрут `articles.show`
+- [x] Команда [`stats:daily`](app/Console/Commands/SendDailyStats.php) (`make:command`): просмотры за сегодня (всего и по url) и комментарии за сегодня → письмо [`DailyStatsMail`](app/Mail/DailyStatsMail.php) модераторам
+- [x] Расписание в [`routes/console.php`](routes/console.php): `Schedule::command('stats:daily')->everyMinute()`
+- [x] Запуск: `php artisan schedule:run` (разово) или `php artisan schedule:work`; при `MAIL_MAILER=log` письмо пишется в `storage/logs/laravel.log`
+
 ## Структура сайта
 
 - **Header:** меню (Главная / О нас / Контакты)
